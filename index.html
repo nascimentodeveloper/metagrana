@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MetaGrana</title>
+  <link rel="icon" href="src/logo.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <h1>📊 MetaGrana</h1>
+
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button id="toggle-theme" class="styled-button">🌙 Modo Escuro</button>
+
+    <div id="export-buttons">
+      <button onclick="exportarCSV()" class="styled-button">📤 Exportar para CSV</button>
+      <button onclick="exportarPDF()" class="styled-button">📤 Exportar para PDF</button>
+    </div>
+  </div>
+
+  <form id="meta-form">
+    <input type="text" id="nome" placeholder="📝 Nome da meta" required />
+    <input type="text" id="valor" class="input-real" placeholder="🎯 Valor alvo (R$)" required />
+    <input type="date" id="dataLimite" />
+    <button type="submit">➕ Adicionar</button>
+  </form>
+
+  <div id="metas-container"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

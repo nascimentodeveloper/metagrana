@@ -1,0 +1,239 @@
+/* Reseta o estilo global */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilo do body */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: #f0f2f5;
+  padding: 30px;
+  color: #333;
+}
+
+/* Estilo para o título */
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2em;
+  color: #4a90e2;
+}
+
+/* Estilo do formulário */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+/* Estilo para inputs de texto e número */
+form input[type="text"],
+form input[type="number"] {
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 200px;
+  transition: border 0.3s ease;
+}
+
+/* Estilo do foco nos inputs */
+form input:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/* Estilo do valor real */
+.valor-real {
+  font-weight: bold;
+  color: #2e7d32;
+  font-size: 1.1em;
+}
+
+/* Estilo do valor real no modo escuro */
+body.dark-mode .valor-real {
+  color: #4caf50;
+}
+
+/* Estilo do botão */
+.styled-button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 16px;
+  margin: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.styled-button:hover {
+  background-color: #45a049;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.styled-button:active {
+  background-color: #388e3c;
+  transform: translateY(2px);
+}
+
+/* Estilo do botão de alternância de tema */
+#toggle-theme {
+  background-color: #333;
+  font-size: 18px;
+}
+
+#toggle-theme:hover {
+  background-color: #555;
+}
+
+/* Estilo dos botões dentro do formulário */
+form button {
+  background-color: #4a90e2;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background-color: #357ab8;
+}
+
+/* Estilo do container de metas */
+#metas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+/* Estilo de cada meta */
+.meta {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.meta strong {
+  font-size: 1.2em;
+  color: #222;
+}
+
+.meta input[type="number"] {
+  margin-top: 10px;
+  padding: 8px;
+  width: 140px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.meta button {
+  margin-left: 10px;
+  background-color: #34c759;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.meta button:hover {
+  background-color: #28a745;
+}
+
+.meta button:nth-of-type(2):hover {
+  background-color: #e53935;
+}
+
+/* Estilo do progresso */
+.progress {
+  background: #eee;
+  height: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-inner {
+  background: #34c759;
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* Estilo da economia forçada */
+.economia-forcada {
+  margin-top: 10px;
+  padding: 5px;
+  background: #f0f8ff;
+  border-left: 4px solid #007bff;
+  font-size: 14px;
+}
+
+/* Estilos para o modo escuro */
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+body.dark-mode h1 {
+  color: #4a90e2;
+}
+
+body.dark-mode .meta {
+  background: #2c2c2c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode input,
+body.dark-mode input[type="number"],
+body.dark-mode .meta input {
+  background: #3a3a3a;
+  color: #f0f0f0;
+  border-color: #555;
+}
+
+body.dark-mode .progress {
+  background: #444;
+}
+
+body.dark-mode .progress-inner {
+  background: #30d158;
+}
+
+body.dark-mode button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+body.dark-mode .meta button {
+  background-color: #30d158;
+}
+
+#toggle-theme {
+  padding: 8px 16px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#toggle-theme:hover {
+  background-color: #444;
+}
