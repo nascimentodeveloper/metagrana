@@ -24,34 +24,6 @@ function parseValorMonetario(str) {
     return parseFloat(str.replace(/\D/g, '')) / 100;
 }
 
-function calcularProgresso(meta) {
-    return ((meta.valorAtual / meta.valorAlvo) * 100).toFixed(1);
-}
-
-function calcularEconomiaForcada(meta) {
-    if (!meta.dataLimite) return '';
-    
-    const hoje = new Date();
-    const fim = new Date(meta.dataLimite);
-    const diasRestantes = Math.ceil((fim - hoje) / (1000 * 60 * 60 * 24));
-
-    if (diasRestantes <= 0) return `<div style="color:red;"><strong>⚠️ Meta vencida!</strong></div>`;
-
-    const falta = meta.valorAlvo - meta.valorAtual;
-    const porDia = (falta / diasRestantes).toFixed(2);
-    const porSemana = (falta / (diasRestantes / 7)).toFixed(2);
-    const porMes = (falta / (diasRestantes / 30)).toFixed(2);
-
-    return `
-        <div class="economia-forcada">
-            <strong>💰 Economia Forçada:</strong><br/>
-            ${formatarValor(parseFloat(porDia))}/dia | 
-            ${formatarValor(parseFloat(porSemana))}/semana | 
-            ${formatarValor(parseFloat(porMes))}/mês
-        </div>
-    `;
-}
-
 function renderizarMetas() {
     const container = document.getElementById('metas-container');
     container.innerHTML = '';
@@ -60,8 +32,32 @@ function renderizarMetas() {
         const div = document.createElement('div');
         div.className = 'meta';
 
-        const progresso = calcularProgresso(meta);
-        const economiaForcada = calcularEconomiaForcada(meta);
+        const progresso = ((meta.valorAtual / meta.valorAlvo) * 100).toFixed(1);
+        let economiaForcada = '';
+
+        if (meta.dataLimite) {
+            const hoje = new Date();
+            const fim = new Date(meta.dataLimite);
+            const diasRestantes = Math.ceil((fim - hoje) / (1000 * 60 * 60 * 24));
+
+            if (diasRestantes > 0) {
+                const falta = meta.valorAlvo - meta.valorAtual;
+                const porDia = (falta / diasRestantes).toFixed(2);
+                const porSemana = (falta / (diasRestantes / 7)).toFixed(2);
+                const porMes = (falta / (diasRestantes / 30)).toFixed(2);
+
+                economiaForcada = `
+                    <div class="economia-forcada">
+                        <strong>💰 Economia Forçada:</strong><br/>
+                        ${formatarValor(parseFloat(porDia))}/dia | 
+                        ${formatarValor(parseFloat(porSemana))}/semana | 
+                        ${formatarValor(parseFloat(porMes))}/mês
+                    </div>
+                `;
+            } else {
+                economiaForcada = `<div style="color:red;"><strong>⚠️ Meta vencida!</strong></div>`;
+            }
+        }
 
         div.innerHTML = `
             <strong>📌 ${meta.nome}</strong><br/>
@@ -77,40 +73,35 @@ function renderizarMetas() {
         `;
 
         if (meta.historico && meta.historico.length > 0) {
-            const historicoHtml = gerarHistorico(meta);
+            const historicoHtml = meta.historico.slice(-5).reverse().map(item => {
+                const dataFormatada = new Date(item.data).toLocaleString();
+                const cor = item.tipo === 'adicao' ? 'green' : 'red';
+                const sinal = item.tipo === 'adicao' ? '+' : '-';
+                return `<li style="color:${cor}">${dataFormatada}: ${sinal} ${formatarValor(item.valor)}</li>`;
+            }).join('');
+
             div.innerHTML += `<details><summary>📅 Histórico (últimos 5)</summary><ul>${historicoHtml}</ul></details>`;
         }
 
         container.appendChild(div);
-        configurarMascaraValorInput(index);
-    });
-}
 
-function gerarHistorico(meta) {
-    return meta.historico.slice(-5).reverse().map(item => {
-        const dataFormatada = new Date(item.data).toLocaleString();
-        const cor = item.tipo === 'adicao' ? 'green' : 'red';
-        const sinal = item.tipo === 'adicao' ? '+' : '-';
-        return `<li style="color:${cor}">${dataFormatada}: ${sinal} ${formatarValor(item.valor)}</li>`;
-    }).join('');
-}
-
-function configurarMascaraValorInput(index) {
-    const input = document.getElementById(`valor-${index}`);
-    input.addEventListener('input', () => {
-        let valor = input.value.replace(/\D/g, '');
-        valor = (parseInt(valor, 10) / 100 || 0).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
+        // Máscara em tempo real para cada input
+        const input = document.getElementById(`valor-${index}`);
+        input.addEventListener('input', () => {
+            let valor = input.value.replace(/\D/g, '');
+            valor = (parseInt(valor, 10) / 100 || 0).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+            input.value = valor;
         });
-        input.value = valor;
     });
 }
 
 function adicionarValor(index) {
     const input = document.getElementById(`valor-${index}`);
     const valor = parseValorMonetario(input.value);
-    if (valor > 0) {
+    if (!isNaN(valor) && valor > 0) {
         metas[index].valorAtual += valor;
         metas[index].historico.push({ data: new Date().toISOString(), valor, tipo: 'adicao' });
         salvarMetas();
@@ -122,8 +113,9 @@ function adicionarValor(index) {
 function removerValor(index) {
     const input = document.getElementById(`valor-${index}`);
     const valor = parseValorMonetario(input.value);
-    if (valor > 0) {
-        metas[index].valorAtual = Math.max(0, metas[index].valorAtual - valor);
+    if (!isNaN(valor) && valor > 0) {
+        metas[index].valorAtual -= valor;
+        if (metas[index].valorAtual < 0) metas[index].valorAtual = 0;
         metas[index].historico.push({ data: new Date().toISOString(), valor, tipo: 'remocao' });
         salvarMetas();
         renderizarMetas();
@@ -145,7 +137,7 @@ function exportarCSV() {
         meta.nome,
         formatarValor(meta.valorAlvo),
         formatarValor(meta.valorAtual),
-        `${calcularProgresso(meta)}%`,
+        `${((meta.valorAtual / meta.valorAlvo) * 100).toFixed(1)}%`,
         meta.dataLimite ? new Date(meta.dataLimite).toLocaleDateString() : 'Sem limite'
     ]);
 
@@ -164,10 +156,11 @@ function exportarCSV() {
 function exportarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+
     doc.setFontSize(16);
     doc.text('Relatório de Metas', 20, 20);
 
-    let yPosition = 30;
+    let yPosition = 30; // Posição inicial
 
     metas.forEach(meta => {
         doc.setFontSize(12);
@@ -177,7 +170,7 @@ function exportarPDF() {
         yPosition += 10;
         doc.text(`Valor Atual: ${formatarValor(meta.valorAtual)}`, 20, yPosition);
         yPosition += 10;
-        doc.text(`Progresso: ${calcularProgresso(meta)}%`, 20, yPosition);
+        doc.text(`Progresso: ${(meta.valorAtual / meta.valorAlvo * 100).toFixed(1)}%`, 20, yPosition);
         yPosition += 10;
         if (meta.dataLimite) {
             doc.text(`Data Limite: ${new Date(meta.dataLimite).toLocaleDateString()}`, 20, yPosition);
@@ -195,18 +188,6 @@ function exportarPDF() {
     doc.save('metas.pdf');
 }
 
-function adicionarMeta(nome, valor, dataLimite) {
-    metas.push({
-        nome,
-        valorAlvo: valor,
-        valorAtual: 0,
-        dataLimite: dataLimite || null,
-        historico: []
-    });
-    salvarMetas();
-    renderizarMetas();
-}
-
 document.getElementById('meta-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const nome = document.getElementById('nome').value.trim();
@@ -215,9 +196,27 @@ document.getElementById('meta-form').addEventListener('submit', (e) => {
     const dataLimite = document.getElementById('dataLimite').value;
 
     if (nome && !isNaN(valor)) {
-        adicionarMeta(nome, valor, dataLimite);
+        metas.push({
+            nome,
+            valorAlvo: valor,
+            valorAtual: 0,
+            dataLimite: dataLimite || null,
+            historico: []
+        });
+        salvarMetas();
+        renderizarMetas();
         e.target.reset();
     }
+});
+
+const inputValor = document.getElementById('valor');
+inputValor.addEventListener('input', () => {
+    let valor = inputValor.value.replace(/\D/g, '');
+    valor = (parseInt(valor, 10) / 100 || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+    inputValor.value = valor;
 });
 
 document.getElementById('toggle-theme').addEventListener('click', () => {
